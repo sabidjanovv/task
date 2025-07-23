@@ -17,12 +17,15 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
+  /**
+   * Register a new user
+   */
   async register(registerDto: RegisterDto): Promise<User> {
     const { name, email, password, role } = registerDto;
 
     const existingUser = await this.userModel.findOne({ email }).exec();
     if (existingUser) {
-      throw new BadRequestException("Bu email allaqachon ro'yxatdan o'tgan");
+      throw new BadRequestException('Email already exists');
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -38,17 +41,20 @@ export class AuthService {
     return user.save();
   }
 
+  /**
+   * Authenticate user and return access token
+   */
   async login(loginDto: LoginDto): Promise<LoginResponseDto> {
     const { email, password } = loginDto;
 
     const user = await this.userModel.findOne({ email }).exec();
     if (!user) {
-      throw new UnauthorizedException('Noto‘g‘ri email yoki parol');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      throw new UnauthorizedException('Noto‘g‘ri email yoki parol');
+      throw new UnauthorizedException('Invalid email or password');
     }
 
     const payload = { id: user._id, email: user.email, role: user.role };
@@ -61,6 +67,9 @@ export class AuthService {
     return { accessToken };
   }
 
+  /**
+   * Validates user credentials for local strategies
+   */
   async validateUser(email: string, password: string): Promise<any> {
     const user = await this.userModel.findOne({ email }).exec();
     if (user && (await bcrypt.compare(password, user.password))) {

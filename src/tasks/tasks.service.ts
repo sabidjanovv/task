@@ -1,26 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Task, TaskDocument } from './schemas/task.schema';
+import { Model } from 'mongoose';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 
 @Injectable()
 export class TasksService {
-  create(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+  constructor(@InjectModel(Task.name) private taskModel: Model<TaskDocument>) {}
+
+  async create(createTaskDto: CreateTaskDto, userId: string) {
+    const createdTask = new this.taskModel({
+      ...createTaskDto,
+      createdBy: userId,
+    });
+    return createdTask.save();
   }
 
-  findAll() {
-    return `This action returns all tasks`;
+  async findAll() {
+    return this.taskModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} task`;
+  async findOne(id: string, ) {
+    const task = await this.taskModel.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return task;
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: string, updateTaskDto: UpdateTaskDto, ) {
+    const task = await this.taskModel.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    Object.assign(task, updateTaskDto);
+    return task.save();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: string) {
+    const task = await this.taskModel.findById(id);
+    if (!task) {
+      throw new NotFoundException('Task not found');
+    }
+    return task.deleteOne();
   }
 }
