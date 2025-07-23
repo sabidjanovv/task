@@ -3,33 +3,37 @@ import { AuthService } from './auth.service';
 import { RegisterDto, LoginDto, LoginResponseDto } from './dto/auth.dto';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-@ApiTags('auth')
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Yangi foydalanuvchi ro‘yxatdan o‘tkazish' })
+  @ApiOperation({ summary: 'Register a new user' })
   @ApiResponse({
     status: 201,
-    description: 'Foydalanuvchi muvaffaqiyatli ro‘yxatdan o‘tdi',
+    description: 'User registered successfully',
   })
-  @ApiResponse({ status: 400, description: 'Email allaqachon mavjud' })
+  @ApiResponse({
+    status: 400,
+    description: 'Email already exists',
+  })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Foydalanuvchi tizimga kirishi va JWT token olishi',
-  })
+  @ApiOperation({ summary: 'Login and retrieve a JWT token' })
   @ApiResponse({
     status: 200,
     type: LoginResponseDto,
-    description: 'Muvaffaqiyatli kirish',
+    description: 'Login successful, JWT token returned',
   })
-  @ApiResponse({ status: 401, description: 'Noto‘g‘ri email yoki parol' })
+  @ApiResponse({
+    status: 401,
+    description: 'Invalid email or password',
+  })
   async login(@Body() loginDto: LoginDto): Promise<LoginResponseDto> {
     return this.authService.login(loginDto);
   }

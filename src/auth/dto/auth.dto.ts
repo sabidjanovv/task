@@ -2,27 +2,30 @@ import { IsString, IsNotEmpty, IsEmail, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
-  @ApiProperty({ description: 'Foydalanuvchi ismi', example: 'Ali Valiev' })
+  @ApiProperty({ description: "User's full name", example: 'Sardor Sobidjonov' })
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    description: 'Foydalanuvchi emaili',
-    example: 'ali@example.com',
+    description: "User's email address",
+    example: 'sardor@example.com',
   })
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ description: 'Foydalanuvchi paroli', example: 'Password123!' })
+  @ApiProperty({
+    description: 'Password (minimum 6 characters)',
+    example: 'Password123!',
+  })
   @IsString()
   @IsNotEmpty()
   @MinLength(6)
   password: string;
 
   @ApiProperty({
-    description: 'Foydalanuvchi roli',
+    description: "User's role",
     example: 'student',
     enum: ['student', 'admin'],
   })
@@ -33,14 +36,17 @@ export class RegisterDto {
 
 export class LoginDto {
   @ApiProperty({
-    description: 'Foydalanuvchi emaili',
-    example: 'ali@example.com',
+    description: "User's email address",
+    example: 'sardor@example.com',
   })
   @IsEmail()
   @IsNotEmpty()
   email: string;
 
-  @ApiProperty({ description: 'Foydalanuvchi paroli', example: 'Password123!' })
+  @ApiProperty({
+    description: 'User password',
+    example: 'Password123!',
+  })
   @IsString()
   @IsNotEmpty()
   password: string;
@@ -48,7 +54,7 @@ export class LoginDto {
 
 export class LoginResponseDto {
   @ApiProperty({
-    description: 'JWT token',
+    description: 'JWT access token to be used for authenticated requests',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
   })
   accessToken: string;

@@ -37,4 +37,18 @@ export class UsersService {
 
     return user.registeredCourses;
   }
+
+  async findOne(userId: string): Promise<User> {
+    if (!Types.ObjectId.isValid(userId)) {
+      throw new NotFoundException('Yaroqsiz foydalanuvchi ID');
+    }
+
+    const user = await this.userModel.findById(userId).exec();
+
+    if (!user) {
+      throw new NotFoundException('Foydalanuvchi topilmadi');
+    }
+
+    return user;
+  }
 }

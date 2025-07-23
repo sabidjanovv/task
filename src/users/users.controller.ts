@@ -3,7 +3,6 @@ import {
   Get,
   Param,
   UseGuards,
-  Request,
   ForbiddenException,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -14,24 +13,29 @@ import {
   ApiOperation,
   ApiResponse,
 } from '@nestjs/swagger';
+import { AdminGuard } from '../common/guards/admin.guard';
 
-@ApiTags('users')
+@ApiTags('Users')
+@ApiBearerAuth()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get(':id/courses')
-  @ApiBearerAuth()
-  @ApiOperation({ summary: "Talabaning ro'yxatdan o'tgan kurslarini olish" })
+  @UseGuards(AuthGuard('jwt'), AdminGuard)
+  @ApiOperation({ summary: 'Get all courses a student is registered in' })
   @ApiResponse({
     status: 200,
-    description: 'Kurslar ro‘yxati muvaffaqiyatli olindi',
+    description: 'List of registered courses retrieved successfully',
   })
   @ApiResponse({
     status: 403,
-    description: 'Faqat o‘z kurslaringizni ko‘rishingiz mumkin',
+    description: 'You are not allowed to view courses for this user',
   })
-  @ApiResponse({ status: 404, description: 'Foydalanuvchi topilmadi' })
+  @ApiResponse({
+    status: 404,
+    description: 'User not found',
+  })
   async getUserCourses(@Param('id') id: string) {
     return this.usersService.getUserCourses(id);
   }
